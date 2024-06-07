@@ -1,75 +1,114 @@
 package src
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type Lexer struct {
-	input          string
+	// input          string
+	input          []byte
 	character      byte
 	start, current int //start = first char in lexeme being scanned--current = current character being scanned
 }
 
-/*
-EOF         = "EOF"
-*/
+func BeginScan(inputSource []byte) *Lexer {
+	lexer := Lexer{input: inputSource}
+	return &lexer
+}
 
-func ScanTokens(byteSource []byte) {
-	/* var token Token */
-	var tokenList []Token
-	for index, value := range byteSource {
-		switch value {
-		case '{':
-			tokenList = append(tokenList, createToken(RIGHT_BRACE, string(value)))
-		case '}':
-			tokenList = append(tokenList, createToken(LEFT_BRACE, string(value)))
-		case '[':
-			tokenList = append(tokenList, createToken(LEFT_PAREN, string(value)))
-		case ']':
-			tokenList = append(tokenList, createToken(RIGHT_PAREN, string(value)))
-		case ',':
-			tokenList = append(tokenList, createToken(COMMA, string(value)))
-		case ':':
-			tokenList = append(tokenList, createToken(COLON, string(value)))
-		case '"':
-			tokenList = append(tokenList, createToken(STRING, string(value)))
-			/* stringToken(byteSource, index) */
-			stringToken(byteSource[index:], index)
-		}
-
+func (l *Lexer) ScannerLoop() {
+	for l.current < len(l.input) {
+		fmt.Println("1-: ", l.current, len(l.input))
+		l.ScanTokens()
+		// l.current++
+		fmt.Println("2-: ", l.current, len(l.input))
 	}
-	tokenList = append(tokenList, Token{EOF, ""})
-	fmt.Println(tokenList)
 }
 
-func createToken(tokenType string, Lexeme string) Token {
-	return Token{TokenType: tokenType, Lexeme: string(Lexeme)}
-}
-
-func advance(byteSource []byte, index int) string {
-	return string(byteSource[index+1])
-}
-func peek(byteSource []byte) string {
-	if len(byteSource) <= 1 {
-		return "" // rewrite tho throw throw an error here
+func (l *Lexer) ScanTokens() {
+	var token Token
+	// var tokenList []Token
+	l.readChar()
+	l.removeWhitespaces()
+	switch l.character {
+	case '{':
+		// tokenList = append(tokenList, createToken(RIGHT_BRACE, l.character))
+		token = createToken(RIGHT_BRACE, l.character)
+	case '}':
+		// tokenList = append(tokenList, createToken(LEFT_BRACE, l.character))
+		token = createToken(LEFT_BRACE, l.character)
+		fmt.Println("this line ran")
+	case '[':
+		// tokenList = append(tokenList, createToken(LEFT_PAREN, l.character))
+		token = createToken(LEFT_PAREN, l.character)
+	case ']':
+		// tokenList = append(tokenList, createToken(RIGHT_PAREN, l.character))
+		token = createToken(RIGHT_PAREN, l.character)
+	case ',':
+		// tokenList = append(tokenList, createToken(COMMA, l.character))
+		token = createToken(COMMA, l.character)
+	case ':':
+		// tokenList = append(tokenList, createToken(COLON, l.character))
+		token = createToken(COLON, l.character)
+	case '"': //check if is key or value in here
+		// tokenList = append(tokenList, Token{TokenType: STRING, Lexeme: string(l.stringToken())})
+		token = Token{TokenType: STRING, Lexeme: string(l.stringToken())}
 	}
-	return string(byteSource[1]) //byte slice is passed so to peek return index one value
-	/* return string(byteSource[index+1]) */
+
+	fmt.Println(token)
+	// fmt.Println(tokenList)
 }
 
-func stringToken(byteSource []byte, startPosition int) {
-	var stringBuildder string
+func createToken(tokenType string, literal byte) Token {
+	return Token{TokenType: tokenType, Lexeme: string(literal)}
+}
 
-	fmt.Println("len: ", len(byteSource), startPosition)
-	for index := 0; peek(byteSource[startPosition:]) != `:`; index++ {
-		/* for index := startPosition; peek(byteSource[index:]) != `:`; index++ { */
-		if index >= len(byteSource[startPosition:]) {
-			return
-		}
-		fmt.Println(index)
-		stringBuildder += string(byteSource[index])
-		fmt.Println(stringBuildder)
+func (l *Lexer) readChar() {
+
+	l.current++
+	if l.current > len(l.input) {
+		// fmt.Println("called readchar", l.atEnd())
+		return
 	}
-	fmt.Println(stringBuildder)
+	l.character = l.input[l.current]
 
+	// l.character = l.input[l.current-1]
+}
+
+func (l *Lexer) peek() byte {
+	if l.atEnd() {
+		return 0
+	}
+	return l.input[l.current]
+}
+
+func (l *Lexer) atEnd() bool {
+	// fmt.Println("something: ", len(l.input), l.current)
+	return l.current >= len(l.input)
+}
+
+func (l *Lexer) removeWhitespaces() {
+	for l.character == ' ' || l.character == '\t' || l.character == '\n' || l.character == '\r' {
+		l.readChar()
+	}
+}
+
+// func (l *Lexer) isLetter() bool {
+// 	return ('a' <= l.character && l.character <= 'z') || ('A' <= l.character && l.character <= 'Z')
+// }
+
+func (l *Lexer) stringToken() []byte {
+	// fmt.Println(l.start, l.current)
+	l.start = l.current
+	for l.peek() != '"' && !l.atEnd() {
+		l.readChar()
+		fmt.Println("string tokens")
+	}
+
+	if l.atEnd() {
+		panic("Unterminated string")
+	}
+
+	fmt.Println("first: ", string(l.input[l.start:l.current]))
+	l.readChar() //last quote
+	fmt.Println("second: ", string(l.input[l.start:l.current]))
+	return l.input[l.start:l.current]
 }
