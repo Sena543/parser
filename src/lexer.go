@@ -16,10 +16,8 @@ func BeginScan(inputSource []byte) *Lexer {
 
 func (l *Lexer) ScannerLoop() {
 	for l.current < len(l.input) {
-		fmt.Println("1-: ", l.current, len(l.input))
 		l.ScanTokens()
 		// l.current++
-		fmt.Println("2-: ", l.current, len(l.input))
 	}
 }
 
@@ -35,7 +33,6 @@ func (l *Lexer) ScanTokens() {
 	case '}':
 		// tokenList = append(tokenList, createToken(LEFT_BRACE, l.character))
 		token = createToken(LEFT_BRACE, l.character)
-		fmt.Println("this line ran")
 	case '[':
 		// tokenList = append(tokenList, createToken(LEFT_PAREN, l.character))
 		token = createToken(LEFT_PAREN, l.character)
@@ -51,6 +48,10 @@ func (l *Lexer) ScanTokens() {
 	case '"': //check if is key or value in here
 		// tokenList = append(tokenList, Token{TokenType: STRING, Lexeme: string(l.stringToken())})
 		token = Token{TokenType: STRING, Lexeme: string(l.stringToken())}
+	case '\000': //end of file
+		token = createToken(EOF, '\000')
+		//tok.Lexeme = ""
+		//tok.Type = EOF
 	}
 
 	fmt.Println(token)
@@ -63,14 +64,13 @@ func createToken(tokenType string, literal byte) Token {
 
 func (l *Lexer) readChar() {
 
-	l.current++
-	if l.current > len(l.input) {
-		// fmt.Println("called readchar", l.atEnd())
+	if l.atEnd() { //handles end of input
+		/* l.character = 0 */
+		l.character = '\000'
 		return
 	}
 	l.character = l.input[l.current]
-
-	// l.character = l.input[l.current-1]
+	l.current++
 }
 
 func (l *Lexer) peek() byte {
@@ -81,7 +81,6 @@ func (l *Lexer) peek() byte {
 }
 
 func (l *Lexer) atEnd() bool {
-	// fmt.Println("something: ", len(l.input), l.current)
 	return l.current >= len(l.input)
 }
 
@@ -91,24 +90,21 @@ func (l *Lexer) removeWhitespaces() {
 	}
 }
 
-// func (l *Lexer) isLetter() bool {
-// 	return ('a' <= l.character && l.character <= 'z') || ('A' <= l.character && l.character <= 'Z')
-// }
+//	func (l *Lexer) isLetter() bool {
+//		return ('a' <= l.character && l.character <= 'z') || ('A' <= l.character && l.character <= 'Z')
+//	}
 
 func (l *Lexer) stringToken() []byte {
-	// fmt.Println(l.start, l.current)
-	l.start = l.current
-	for l.peek() != '"' && !l.atEnd() {
-		l.readChar()
-		fmt.Println("string tokens")
-	}
 
+	l.start = l.current
+	for !l.atEnd() && l.input[l.current] != '"' {
+		/* for !l.atEnd() && l.peek() != '"' { */
+		l.readChar()
+	}
 	if l.atEnd() {
 		panic("Unterminated string")
 	}
 
-	fmt.Println("first: ", string(l.input[l.start:l.current]))
-	l.readChar() //last quote
-	fmt.Println("second: ", string(l.input[l.start:l.current]))
-	return l.input[l.start:l.current]
+	l.readChar() //read last quote
+	return l.input[l.start : l.current-1]
 }
