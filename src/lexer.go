@@ -47,7 +47,14 @@ func (l *Lexer) ScanTokens() {
 		token = createToken(COLON, l.character)
 	case '"': //check if is key or value in here
 		// tokenList = append(tokenList, Token{TokenType: STRING, Lexeme: string(l.stringToken())})
-		token = Token{TokenType: STRING, Lexeme: string(l.stringToken())}
+		var tokenType string
+		item := string(l.stringToken())
+		if !l.atEnd() && l.input[l.current] == ':' {
+			tokenType = KEY
+		} else {
+			tokenType = VALUE
+		}
+		token = Token{TokenType: tokenType, Lexeme: item}
 	case '\000': //end of file
 		token = createToken(EOF, '\000')
 		//tok.Lexeme = ""

@@ -20,5 +20,7 @@ const (
 	COMMA       = "COMMA"
 	COLON       = "COLON"
 	STRING      = "STRING"
+	KEY         = "KEY"
+	VALUE       = "VALUE"
 	EOF         = "EOF"
 )
