@@ -1,7 +1,5 @@
 package src
 
-import "fmt"
-
 type Lexer struct {
 	// input          string
 	input          []byte
@@ -17,11 +15,10 @@ func BeginScan(inputSource []byte) *Lexer {
 func (l *Lexer) ScannerLoop() {
 	for l.current < len(l.input) {
 		l.ScanTokens()
-		// l.current++
 	}
 }
 
-func (l *Lexer) ScanTokens() {
+func (l *Lexer) ScanTokens() Token {
 	var token Token
 	// var tokenList []Token
 	l.readChar()
@@ -29,10 +26,10 @@ func (l *Lexer) ScanTokens() {
 	switch l.character {
 	case '{':
 		// tokenList = append(tokenList, createToken(RIGHT_BRACE, l.character))
-		token = createToken(RIGHT_BRACE, l.character)
+		token = createToken(LEFT_BRACE, l.character)
 	case '}':
 		// tokenList = append(tokenList, createToken(LEFT_BRACE, l.character))
-		token = createToken(LEFT_BRACE, l.character)
+		token = createToken(RIGHT_BRACE, l.character)
 	case '[':
 		// tokenList = append(tokenList, createToken(LEFT_PAREN, l.character))
 		token = createToken(LEFT_PAREN, l.character)
@@ -61,8 +58,9 @@ func (l *Lexer) ScanTokens() {
 		//tok.Type = EOF
 	}
 
-	fmt.Println(token)
+	/* fmt.Println(token) */
 	// fmt.Println(tokenList)
+	return token
 }
 
 func createToken(tokenType string, literal byte) Token {
