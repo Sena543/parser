@@ -9,12 +9,12 @@ type Parser struct {
 
 func New(lexer *Lexer) *Parser {
 	parser := &Parser{lexer: lexer}
-	parser.getToken() //called twice to populate the two token fields in Parser struct
-	parser.getToken() //cos on first call p.nextToken is nil, second call yeilds the scanned value
+	parser.getNextToken() //called twice to populate the two token fields in Parser struct
+	parser.getNextToken() //cos on first call p.nextToken is nil, second call yeilds the scanned value
 	return parser
 }
 
-func (p *Parser) getToken() {
+func (p *Parser) getNextToken() {
 	p.currentToken = p.nextToken
 	p.nextToken = p.lexer.ScanTokens()
 }
@@ -25,9 +25,12 @@ func (p *Parser) ParserLoop() {
 			p.ParseObjects()
 		}
 		fmt.Println(p.currentToken, p.nextToken)
-		p.getToken()
+		/* p.getNextToken() */
 	}
 
+	if p.currentToken.TokenType == EOF {
+		fmt.Println("Input file is valid")
+	}
 }
 
 func (p *Parser) ParseString() {
@@ -35,22 +38,25 @@ func (p *Parser) ParseString() {
 }
 
 func (p *Parser) ParseObjects() {
-	if p.expect(RIGHT_BRACE) {
-		p.getToken()
+
+	if p.nextTokenIs(RIGHT_BRACE) {
+		p.match(LEFT_BRACE)
+		p.match(RIGHT_BRACE)
 		return
 	}
 
-	if p.expect(KEY) {
-		p.getToken()
-		/* return */
-	}
-
-	if p.expect(COLON) {
-		p.getToken()
+	if p.nextTokenIs(KEY) {
+		p.match(LEFT_BRACE)
+		p.match(KEY)
+		p.match(COLON)
+		p.ParseValue()
+		return
 	}
 }
 
 func (p *Parser) ParseValue() {
+	p.getNextToken()
+	p.getNextToken()
 }
 
 // checks the what we expect the nextToken to be
@@ -60,6 +66,15 @@ func (p *Parser) expect(tk string) bool {
 		return false
 	}
 	return true
+}
+
+func (p *Parser) match(expectedToken string) {
+	if p.currentToken.TokenType == expectedToken {
+		p.getNextToken()
+		return
+	}
+	msg := fmt.Sprintf("Expected %s got %s", p.currentToken.TokenType, expectedToken)
+	panic(msg)
 }
 
 func (p *Parser) currentTokenIs(tk string) bool {
