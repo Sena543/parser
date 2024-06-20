@@ -20,12 +20,13 @@ func (p *Parser) getNextToken() {
 }
 
 func (p *Parser) ParserLoop() {
+	/* fmt.Println("starting parser loop") */
 	for p.currentToken.TokenType != EOF {
+		/* fmt.Println(p.currentToken, p.nextToken) */
 		if p.currentToken.TokenType == LEFT_BRACE {
 			p.ParseObjects()
 		}
-		fmt.Println(p.currentToken, p.nextToken)
-		/* p.getNextToken() */
+		p.getNextToken()
 	}
 
 	if p.currentToken.TokenType == EOF {
@@ -55,8 +56,10 @@ func (p *Parser) ParseObjects() {
 }
 
 func (p *Parser) ParseValue() {
-	p.getNextToken()
-	p.getNextToken()
+	if p.currentTokenIs(STRING_VALUE) {
+		p.match(STRING_VALUE)
+	}
+
 }
 
 // checks the what we expect the nextToken to be
@@ -69,6 +72,7 @@ func (p *Parser) expect(tk string) bool {
 }
 
 func (p *Parser) match(expectedToken string) {
+	fmt.Println(expectedToken)
 	if p.currentToken.TokenType == expectedToken {
 		p.getNextToken()
 		return

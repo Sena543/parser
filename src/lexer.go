@@ -1,5 +1,7 @@
 package src
 
+/* import "fmt" */
+
 type Lexer struct {
 	// input          string
 	input          []byte
@@ -49,7 +51,8 @@ func (l *Lexer) ScanTokens() Token {
 		if !l.atEnd() && l.input[l.current] == ':' {
 			tokenType = KEY
 		} else {
-			tokenType = VALUE
+			tokenType = STRING_VALUE
+			/* tokenType = VALUE */
 		}
 		token = Token{TokenType: tokenType, Lexeme: item}
 	case '\000': //end of file
