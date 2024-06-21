@@ -22,5 +22,6 @@ const (
 	STRING       = "STRING"
 	KEY          = "KEY"
 	STRING_VALUE = "STRING_VALUE"
+	NUMBER       = "NUMBER"
 	EOF          = "EOF"
 )
