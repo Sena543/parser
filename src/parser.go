@@ -56,8 +56,36 @@ func (p *Parser) ParseObjects() {
 }
 
 func (p *Parser) ParseValue() {
-	if p.currentTokenIs(STRING_VALUE) {
+
+	switch p.currentToken.TokenType {
+	case STRING_VALUE:
 		p.match(STRING_VALUE)
+		/* case NUMBER:
+			fmt.Println("number")
+		case LEFT_BRACE:
+			fmt.Println("arrray")
+			p.ParseArray()
+		case LEFT_PAREN:
+			p.ParseObjects() */
+	}
+	p.match(RIGHT_BRACE)
+}
+
+func (p *Parser) ParseArray() {
+
+	for !p.nextTokenIs(RIGHT_PAREN) {
+		switch p.currentToken.TokenType {
+		case STRING_VALUE:
+			p.match(STRING_VALUE)
+			break
+		case NUMBER:
+			p.match(NUMBER)
+			break
+		case LEFT_BRACE:
+			p.ParseArray()
+		case LEFT_PAREN:
+			p.ParseObjects()
+		}
 	}
 
 }
@@ -77,7 +105,7 @@ func (p *Parser) match(expectedToken string) {
 		p.getNextToken()
 		return
 	}
-	msg := fmt.Sprintf("Expected %s got %s", p.currentToken.TokenType, expectedToken)
+	msg := fmt.Sprintf("Expected %s got %s", expectedToken, p.currentToken.TokenType)
 	panic(msg)
 }
 
