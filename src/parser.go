@@ -5,6 +5,7 @@ import "fmt"
 type Parser struct {
 	lexer                   *Lexer
 	currentToken, nextToken Token
+	//nextToken is my lookahead
 }
 
 func New(lexer *Lexer) *Parser {
@@ -20,16 +21,15 @@ func (p *Parser) getNextToken() {
 }
 
 func (p *Parser) ParserLoop() {
-	/* fmt.Println("starting parser loop") */
 	for p.currentToken.TokenType != EOF {
-		/* fmt.Println(p.currentToken, p.nextToken) */
 		if p.currentToken.TokenType == LEFT_BRACE {
 			p.ParseObjects()
 		}
 		p.getNextToken()
 	}
 
-	if p.currentToken.TokenType == EOF {
+	/* if p.currentToken.TokenType == EOF { */
+	if p.currentTokenIs(EOF) {
 		fmt.Println("Input file is valid")
 	}
 }
@@ -46,13 +46,24 @@ func (p *Parser) ParseObjects() {
 		return
 	}
 
-	if p.nextTokenIs(KEY) {
+	p.match(LEFT_BRACE)
+	for !p.currentTokenIs(RIGHT_BRACE) {
+		p.match(KEY)
+		p.match(COLON)
+		p.ParseValue()
+		if p.nextTokenIs(KEY) {
+			p.match(COMMA)
+		}
+	}
+
+	/* if p.nextTokenIs(KEY) {
 		p.match(LEFT_BRACE)
 		p.match(KEY)
 		p.match(COLON)
 		p.ParseValue()
 		return
-	}
+	} */
+	p.match(RIGHT_BRACE)
 }
 
 func (p *Parser) ParseValue() {
@@ -60,33 +71,29 @@ func (p *Parser) ParseValue() {
 	switch p.currentToken.TokenType {
 	case STRING_VALUE:
 		p.match(STRING_VALUE)
-		/* case NUMBER:
-			fmt.Println("number")
-		case LEFT_BRACE:
-			fmt.Println("arrray")
-			p.ParseArray()
-		case LEFT_PAREN:
-			p.ParseObjects() */
+	case LEFT_BRACE:
+		fmt.Println("arrray")
+		p.ParseArray()
+	case TRUE:
+		p.match(TRUE)
+	case FALSE:
+		p.match(FALSE)
+	case NUMBER:
+		p.match(NUMBER)
+	case NULL:
+		fmt.Println("null")
+		p.match(NULL)
+
 	}
-	p.match(RIGHT_BRACE)
 }
 
 func (p *Parser) ParseArray() {
 
-	for !p.nextTokenIs(RIGHT_PAREN) {
-		switch p.currentToken.TokenType {
-		case STRING_VALUE:
-			p.match(STRING_VALUE)
-			break
-		case NUMBER:
-			p.match(NUMBER)
-			break
-		case LEFT_BRACE:
-			p.ParseArray()
-		case LEFT_PAREN:
-			p.ParseObjects()
-		}
+	for !p.currentTokenIs(RIGHT_PAREN) {
+		p.ParseValue()
+		p.match(COMMA)
 	}
+	p.match(RIGHT_BRACE)
 
 }
 
@@ -100,7 +107,7 @@ func (p *Parser) expect(tk string) bool {
 }
 
 func (p *Parser) match(expectedToken string) {
-	fmt.Println(expectedToken)
+	fmt.Println(expectedToken, p.currentToken.Lexeme)
 	if p.currentToken.TokenType == expectedToken {
 		p.getNextToken()
 		return
