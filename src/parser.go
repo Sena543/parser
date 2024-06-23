@@ -93,8 +93,7 @@ func (p *Parser) ParseArray() {
 		p.ParseValue()
 		p.match(COMMA)
 	}
-	p.match(RIGHT_BRACE)
-
+	p.match(RIGHT_PAREN)
 }
 
 // checks the what we expect the nextToken to be
