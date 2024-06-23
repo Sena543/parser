@@ -20,10 +20,9 @@ func (l *Lexer) ScannerLoop() {
 
 func (l *Lexer) ScanTokens() Token {
 	var token Token
-	// var tokenList []Token
+
 	l.readChar()
 	l.removeWhitespaces()
-	/* fmt.Print(string(l.character)) */
 	switch l.character {
 	case '{':
 		// tokenList = append(tokenList, createToken(RIGHT_BRACE, l.character))
@@ -43,10 +42,6 @@ func (l *Lexer) ScanTokens() Token {
 	case ':':
 		// tokenList = append(tokenList, createToken(COLON, l.character))
 		token = createToken(COLON, l.character)
-	/* case 'f':
-		token = Token{TokenType: FALSE, Lexeme: string(l.booleanToken())}
-	case 't':
-		token = Token{TokenType: TRUE, Lexeme: string(l.booleanToken())} */
 	case '"': //check if is key or value in here
 		// tokenList = append(tokenList, Token{TokenType: STRING, Lexeme: string(l.stringToken())})
 		var tokenType string
