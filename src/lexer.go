@@ -1,7 +1,5 @@
 package src
 
-/* import "fmt" */
-
 type Lexer struct {
 	// input          string
 	input          []byte
@@ -25,6 +23,7 @@ func (l *Lexer) ScanTokens() Token {
 	// var tokenList []Token
 	l.readChar()
 	l.removeWhitespaces()
+	/* fmt.Print(string(l.character)) */
 	switch l.character {
 	case '{':
 		// tokenList = append(tokenList, createToken(RIGHT_BRACE, l.character))
@@ -44,6 +43,10 @@ func (l *Lexer) ScanTokens() Token {
 	case ':':
 		// tokenList = append(tokenList, createToken(COLON, l.character))
 		token = createToken(COLON, l.character)
+	/* case 'f':
+		token = Token{TokenType: FALSE, Lexeme: string(l.booleanToken())}
+	case 't':
+		token = Token{TokenType: TRUE, Lexeme: string(l.booleanToken())} */
 	case '"': //check if is key or value in here
 		// tokenList = append(tokenList, Token{TokenType: STRING, Lexeme: string(l.stringToken())})
 		var tokenType string
@@ -59,10 +62,23 @@ func (l *Lexer) ScanTokens() Token {
 		token = createToken(EOF, '\000')
 		//tok.Lexeme = ""
 		//tok.Type = EOF
+	default:
+		if l.isDigit() {
+			token = Token{TokenType: NUMBER, Lexeme: string(l.digitToken())}
+		} else if l.isLetter() { //boolean check to extract value
+			tokenValue := string(l.booleanToken())
+
+			if tokenValue[0] == 't' {
+				token = Token{TokenType: TRUE, Lexeme: tokenValue}
+			} else {
+				token = Token{TokenType: FALSE, Lexeme: tokenValue}
+			}
+		} else {
+			token = Token{TokenType: NULL, Lexeme: "null"}
+		}
 	}
 
 	/* fmt.Println(token) */
-	// fmt.Println(tokenList)
 	return token
 }
 
@@ -98,9 +114,43 @@ func (l *Lexer) removeWhitespaces() {
 	}
 }
 
-//	func (l *Lexer) isLetter() bool {
-//		return ('a' <= l.character && l.character <= 'z') || ('A' <= l.character && l.character <= 'Z')
-//	}
+func (l *Lexer) isLetter() bool {
+	return ('a' <= l.character && l.character <= 'z')
+	/* return ('a' <= l.character && l.character <= 'z') || ('A' <= l.character && l.character <= 'Z') */
+}
+
+func (l *Lexer) booleanToken() []byte {
+
+	l.start = l.current - 1 //firch char not being read so offet left by one
+	for !l.atEnd() && l.isLetter() && l.peek() != ',' {
+		l.readChar()
+	}
+	if l.atEnd() {
+		panic("Comma separator or curly brace required after boolen value. found none")
+	}
+
+	l.readChar()
+	return l.input[l.start : l.current-1]
+	/* return l.input[l.start : l.current-1] */
+}
+
+func (l *Lexer) digitToken() []byte {
+
+	l.start = l.current - 1 //firch char not being read so offet left by one
+	for !l.atEnd() && l.isDigit() && l.peek() != ',' {
+		l.readChar()
+	}
+	if l.atEnd() {
+		panic("Comma separator or curly brace required after digits. found none")
+	}
+
+	//l.readChar() //read last quote
+	return l.input[l.start : l.current-1]
+}
+
+func (l *Lexer) isDigit() bool {
+	return l.character >= '0' && l.character <= '9'
+}
 
 func (l *Lexer) stringToken() []byte {
 
