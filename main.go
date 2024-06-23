@@ -12,10 +12,10 @@ func main() {
 }
 
 func readFile() {
-	jsonPath := "./src/tests/step2/valid.json"
+	/* jsonPath := "./src/tests/step2/valid.json" */
 	/* jsonPath := "./src/tests/step2/invalid.json" */
-	/* jsonPath := "./src/tests/step1/valid.json" */
-	/* jsonPath := "./src/tests/step1/invalid.json" */
+	jsonPath := "./src/tests/step3/valid.json"
+	/* jsonPath := "./src/tests/step3/invalid.json" */
 	fileBytes, error := os.ReadFile(jsonPath)
 	if error != nil {
 		fmt.Println("File reading error: ", error)
@@ -25,5 +25,4 @@ func readFile() {
 	/* byteData.ScannerLoop() */
 	parserInit := src.New(byteData)
 	parserInit.ParserLoop()
-
 }
