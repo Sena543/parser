@@ -24,4 +24,7 @@ const (
 	STRING_VALUE = "STRING_VALUE"
 	NUMBER       = "NUMBER"
 	EOF          = "EOF"
+	TRUE         = "TRUE"
+	FALSE        = "FALSE"
+	NULL         = "NULL"
 )
