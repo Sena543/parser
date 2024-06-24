@@ -19,6 +19,7 @@ func (l *Lexer) ScannerLoop() {
 }
 
 func (l *Lexer) ScanTokens() Token {
+
 	var token Token
 
 	l.readChar()
