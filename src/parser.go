@@ -1,6 +1,9 @@
 package src
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+)
 
 type Parser struct {
 	lexer                   *Lexer
@@ -20,7 +23,7 @@ func (p *Parser) getNextToken() {
 	p.nextToken = p.lexer.ScanTokens()
 }
 
-func (p *Parser) ParserLoop() {
+func (p *Parser) ParserLoop(writer io.Writer) {
 	for p.currentToken.TokenType != EOF {
 		if p.currentToken.TokenType == LEFT_BRACE {
 			p.ParseObjects()
@@ -30,7 +33,8 @@ func (p *Parser) ParserLoop() {
 
 	/* if p.currentToken.TokenType == EOF { */
 	if p.currentTokenIs(EOF) {
-		fmt.Println("Input file is valid")
+		fmt.Fprintln(writer, "Input file is valid")
+		/* fmt.Println("Input file is valid") */
 	}
 }
 
