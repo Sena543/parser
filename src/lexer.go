@@ -140,7 +140,7 @@ func (l *Lexer) digitToken() []byte {
 		panic("Comma separator or curly brace required after digits. found none")
 	}
 
-	//l.readChar() //read last quote
+	l.readChar() //read last quote
 	return l.input[l.start : l.current-1]
 }
 

@@ -76,7 +76,9 @@ func (p *Parser) ParseValue() {
 	case STRING_VALUE:
 		p.match(STRING_VALUE)
 	case LEFT_BRACE:
-		fmt.Println("arrray")
+		p.ParseObjects()
+	case LEFT_PAREN:
+		fmt.Println("array")
 		p.ParseArray()
 	case TRUE:
 		p.match(TRUE)
@@ -93,6 +95,7 @@ func (p *Parser) ParseValue() {
 
 func (p *Parser) ParseArray() {
 
+	p.match(LEFT_PAREN)
 	for !p.currentTokenIs(RIGHT_PAREN) {
 		p.ParseValue()
 		p.match(COMMA)
