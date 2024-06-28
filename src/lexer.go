@@ -61,7 +61,7 @@ func (l *Lexer) ScanTokens() Token {
 	default:
 		if l.isDigit() {
 			token = Token{TokenType: NUMBER, Lexeme: string(l.digitToken())}
-		} else if l.isLetter() { //boolean check to extract value
+		} else if l.isLetter() { //boolean check to extract true or false value
 			tokenValue := string(l.booleanToken())
 
 			if tokenValue[0] == 't' {
