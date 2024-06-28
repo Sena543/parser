@@ -98,7 +98,9 @@ func (p *Parser) ParseArray() {
 	p.match(LEFT_PAREN)
 	for !p.currentTokenIs(RIGHT_PAREN) {
 		p.ParseValue()
-		p.match(COMMA)
+		if p.nextTokenIs(COMMA) {
+			p.match(COMMA)
+		}
 	}
 	p.match(RIGHT_PAREN)
 }

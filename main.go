@@ -22,11 +22,6 @@ func readFile() {
 	stdIn, err := os.Stdin.Stat()
 	checkError(err, "Error checking stdin")
 
-	/* jsonPath := "./src/test_files/step2/valid.json" */
-	/* jsonPath := "./src/test_files/step2/invalid.json" */
-	/* jsonPath := "./src/tests_files/step3/valid.json" */
-	/* jsonPath := "./src/tests_files/step3/ivalid.json" */
-	/* jsonPath := "./src/tests_files/step3/valid.json" */
 	/* jsonPath := "./src/tests_files/step3/invalid.json" */
 	/* fileBytes, err := os.ReadFile(jsonPath) */
 	/* checkError(err, "error reading file: ") */
