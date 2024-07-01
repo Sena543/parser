@@ -31,15 +31,10 @@ func (p *Parser) ParserLoop(writer io.Writer) {
 		p.getNextToken()
 	}
 
-	/* if p.currentToken.TokenType == EOF { */
 	if p.currentTokenIs(EOF) {
 		fmt.Fprintln(writer, "Input file is valid")
 		/* fmt.Println("Input file is valid") */
 	}
-}
-
-func (p *Parser) ParseString() {
-
 }
 
 func (p *Parser) ParseObjects() {
@@ -55,18 +50,19 @@ func (p *Parser) ParseObjects() {
 		p.match(KEY)
 		p.match(COLON)
 		p.ParseValue()
+
 		if p.nextTokenIs(KEY) {
+			/* if p.currentTokenIs(COMMA) { */
 			p.match(COMMA)
 		}
+
+		/* 	else if p.nextTokenIs(RIGHT_BRACE) && p.currentTokenIs(COMMA) {
+			p.match(COMMA) //match to make sure there is a trailing comma
+			panic("Trailing comma")
+		} */
+
 	}
 
-	/* if p.nextTokenIs(KEY) {
-		p.match(LEFT_BRACE)
-		p.match(KEY)
-		p.match(COLON)
-		p.ParseValue()
-		return
-	} */
 	p.match(RIGHT_BRACE)
 }
 
@@ -78,7 +74,6 @@ func (p *Parser) ParseValue() {
 	case LEFT_BRACE:
 		p.ParseObjects()
 	case LEFT_PAREN:
-		fmt.Println("array")
 		p.ParseArray()
 	case TRUE:
 		p.match(TRUE)
@@ -87,10 +82,9 @@ func (p *Parser) ParseValue() {
 	case NUMBER:
 		p.match(NUMBER)
 	case NULL:
-		fmt.Println("null")
 		p.match(NULL)
-
 	}
+
 }
 
 func (p *Parser) ParseArray() {
@@ -117,6 +111,9 @@ func (p *Parser) expect(tk string) bool {
 func (p *Parser) match(expectedToken string) {
 	fmt.Println(expectedToken, p.currentToken.Lexeme)
 	if p.currentToken.TokenType == expectedToken {
+		/* 	if p.nextTokenIs(ILLEGAL) {
+			panic("illegal value")
+		} */
 		p.getNextToken()
 		return
 	}
