@@ -22,9 +22,6 @@ func readFile() {
 	stdIn, err := os.Stdin.Stat()
 	checkError(err, "Error checking stdin")
 
-	/* jsonPath := "./src/tests_files/step3/invalid.json" */
-	/* fileBytes, err := os.ReadFile(jsonPath) */
-	/* checkError(err, "error reading file: ") */
 	var fileDataPointer []byte
 	if stdIn.Mode()&os.ModeCharDevice == 0 { //check if data is comming from stdin
 		fileDataPointer, _ = io.ReadAll(os.Stdin)
@@ -34,6 +31,11 @@ func readFile() {
 			checkError(err, "File path error: ")
 		}
 		fileDataPointer, _ = os.ReadFile(filePath)
+	}
+
+	if len(fileDataPointer) < 1 {
+		fmt.Println("Error: file empty")
+		return
 	}
 
 	byteData := src.BeginScan(fileDataPointer)
