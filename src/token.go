@@ -13,6 +13,7 @@ const (
 	COMMA       = ","
 	EOF         = "EOF"
 	*/
+	ILLEGAL         = "ILLEGAL"
 	LEFT_PAREN      = "LEFT_PAREN"
 	RIGHT_PAREN     = "RIGHT_PAREN"
 	LEFT_BRACE      = "LEFT_BRACE"

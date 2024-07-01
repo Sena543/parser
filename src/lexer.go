@@ -1,5 +1,7 @@
 package src
 
+import "fmt"
+
 type Lexer struct {
 	// input          string
 	input          []byte
@@ -13,6 +15,7 @@ func BeginScan(inputSource []byte) *Lexer {
 }
 
 func (l *Lexer) ScannerLoop() {
+
 	for l.current < len(l.input) {
 		l.ScanTokens()
 	}
@@ -26,38 +29,28 @@ func (l *Lexer) ScanTokens() Token {
 	l.removeWhitespaces()
 	switch l.character {
 	case '{':
-		// tokenList = append(tokenList, createToken(RIGHT_BRACE, l.character))
 		token = createToken(LEFT_BRACE, l.character)
 	case '}':
-		// tokenList = append(tokenList, createToken(LEFT_BRACE, l.character))
 		token = createToken(RIGHT_BRACE, l.character)
 	case '[':
-		// tokenList = append(tokenList, createToken(LEFT_PAREN, l.character))
 		token = createToken(LEFT_PAREN, l.character)
 	case ']':
-		// tokenList = append(tokenList, createToken(RIGHT_PAREN, l.character))
 		token = createToken(RIGHT_PAREN, l.character)
 	case ',':
-		// tokenList = append(tokenList, createToken(COMMA, l.character))
 		token = createToken(COMMA, l.character)
 	case ':':
-		// tokenList = append(tokenList, createToken(COLON, l.character))
 		token = createToken(COLON, l.character)
 	case '"': //check if is key or value in here
-		// tokenList = append(tokenList, Token{TokenType: STRING, Lexeme: string(l.stringToken())})
 		var tokenType string
 		item := string(l.stringToken())
 		if !l.atEnd() && l.input[l.current] == ':' {
 			tokenType = KEY
 		} else {
 			tokenType = STRING_VALUE
-			/* tokenType = VALUE */
 		}
 		token = Token{TokenType: tokenType, Lexeme: item}
 	case '\000': //end of file
 		token = createToken(EOF, '\000')
-		//tok.Lexeme = ""
-		//tok.Type = EOF
 	default:
 		if l.isDigit() {
 			token = Token{TokenType: NUMBER, Lexeme: string(l.digitToken())}
@@ -66,8 +59,13 @@ func (l *Lexer) ScanTokens() Token {
 
 			if tokenValue[0] == 't' {
 				token = Token{TokenType: TRUE, Lexeme: tokenValue}
-			} else {
+			} else if tokenValue[0] == 'f' {
 				token = Token{TokenType: FALSE, Lexeme: tokenValue}
+			} else {
+
+				fmt.Println("token value:", tokenValue)
+				token = Token{TokenType: ILLEGAL, Lexeme: tokenValue}
+				/* token = Token{TokenType: NULL, Lexeme: "null"} */
 			}
 		} else {
 			token = Token{TokenType: NULL, Lexeme: "null"}
