@@ -61,18 +61,21 @@ func (l *Lexer) ScanTokens() Token {
 				token = Token{TokenType: TRUE, Lexeme: tokenValue}
 			} else if tokenValue[0] == 'f' {
 				token = Token{TokenType: FALSE, Lexeme: tokenValue}
+			} else if tokenValue == "null" { //used string check instead of char cos value might start with and n
+				//must do same for above checks
+				token = Token{TokenType: NULL, Lexeme: "null"}
 			} else {
 
 				fmt.Println("token value:", tokenValue)
 				token = Token{TokenType: ILLEGAL, Lexeme: tokenValue}
 				/* token = Token{TokenType: NULL, Lexeme: "null"} */
 			}
-		} else {
+		} /* else {
 			token = Token{TokenType: NULL, Lexeme: "null"}
-		}
+		} */
 	}
 
-	/* fmt.Println(token) */
+	/* fmt.Println("lexer: ", token) */
 	return token
 }
 
@@ -109,37 +112,35 @@ func (l *Lexer) removeWhitespaces() {
 }
 
 func (l *Lexer) isLetter() bool {
-	return ('a' <= l.character && l.character <= 'z')
-	/* return ('a' <= l.character && l.character <= 'z') || ('A' <= l.character && l.character <= 'Z') */
+	/* return ('a' <= l.character && l.character <= 'z') */
+	return ('a' <= l.character && l.character <= 'z') || ('A' <= l.character && l.character <= 'Z')
 }
 
 func (l *Lexer) booleanToken() []byte {
 
-	l.start = l.current - 1 //firch char not being read so offet left by one
-	for !l.atEnd() && l.isLetter() && l.peek() != ',' {
+	l.start = l.current - 1                             //first char not being read so offet left by one
+	for !l.atEnd() && l.isLetter() && l.peek() != ',' { //potential bug here what happens if l.peek()==}/{ etc
 		l.readChar()
 	}
 	if l.atEnd() {
 		panic("Comma separator or curly brace required after boolen value. found none")
 	}
 
-	l.readChar()
-	return l.input[l.start : l.current-1]
+	/* l.readChar() */
+	return l.input[l.start:l.current]
 	/* return l.input[l.start : l.current-1] */
 }
 
 func (l *Lexer) digitToken() []byte {
 
-	l.start = l.current - 1 //firch char not being read so offet left by one
+	l.start = l.current - 1 //first char not being read so offet left by one
 	for !l.atEnd() && l.isDigit() && l.peek() != ',' {
 		l.readChar()
 	}
 	if l.atEnd() {
 		panic("Comma separator or curly brace required after digits. found none")
 	}
-
-	l.readChar() //read last quote
-	return l.input[l.start : l.current-1]
+	return l.input[l.start:l.current]
 }
 
 func (l *Lexer) isDigit() bool {
