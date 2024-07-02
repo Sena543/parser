@@ -39,31 +39,33 @@ func (p *Parser) ParserLoop(writer io.Writer) {
 
 func (p *Parser) ParseObjects() {
 
-	if p.nextTokenIs(RIGHT_BRACE) {
+	/* 	if p.nextTokenIs(RIGHT_BRACE) {
 		p.match(LEFT_BRACE)
 		p.match(RIGHT_BRACE)
 		return
-	}
+	} */
 
 	p.match(LEFT_BRACE)
 	for !p.currentTokenIs(RIGHT_BRACE) {
 		p.match(KEY)
 		p.match(COLON)
-		p.ParseValue()
-
-		if p.nextTokenIs(KEY) {
-			/* if p.currentTokenIs(COMMA) { */
-			p.match(COMMA)
+		if p.nextTokenIs(COMMA) {
+			p.ParseValue()
+			if p.nextTokenIs(RIGHT_BRACE) {
+				p.match(COMMA)
+				panic("trailing comma")
+			} else {
+				p.match(COMMA)
+			}
+		} else {
+			p.ParseValue()
 		}
-
-		/* 	else if p.nextTokenIs(RIGHT_BRACE) && p.currentTokenIs(COMMA) {
-			p.match(COMMA) //match to make sure there is a trailing comma
-			panic("Trailing comma")
-		} */
-
 	}
 
 	p.match(RIGHT_BRACE)
+	if p.nextTokenIs(KEY) {
+		p.match(COMMA)
+	}
 }
 
 func (p *Parser) ParseValue() {
@@ -83,8 +85,17 @@ func (p *Parser) ParseValue() {
 		p.match(NUMBER)
 	case NULL:
 		p.match(NULL)
+	default:
+		fmt.Println("default: illegal value")
+		p.IllegalValue(p.currentToken)
 	}
 
+}
+
+func (p *Parser) IllegalValue(expectedToken Token) {
+	/* msg := fmt.Sprintf("Expected %s found %s", expectedToken, p.currentToken.Lexeme) */
+	msg := fmt.Sprintf("Unexpected value %s", expectedToken.Lexeme)
+	panic(msg)
 }
 
 func (p *Parser) ParseArray() {
@@ -109,11 +120,8 @@ func (p *Parser) expect(tk string) bool {
 }
 
 func (p *Parser) match(expectedToken string) {
-	fmt.Println(expectedToken, p.currentToken.Lexeme)
+	fmt.Println(expectedToken, p.currentToken.Lexeme, "next token:", p.nextToken.Lexeme, p.nextToken.TokenType)
 	if p.currentToken.TokenType == expectedToken {
-		/* 	if p.nextTokenIs(ILLEGAL) {
-			panic("illegal value")
-		} */
 		p.getNextToken()
 		return
 	}
