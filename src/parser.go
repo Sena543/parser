@@ -3,18 +3,21 @@ package src
 import (
 	"fmt"
 	"io"
+	"os"
 )
 
 type Parser struct {
 	lexer                   *Lexer
 	currentToken, nextToken Token
+	stdout                  io.Writer
 	//nextToken is my lookahead
 }
 
 func New(lexer *Lexer) *Parser {
 	parser := &Parser{lexer: lexer}
-	parser.getNextToken() //called twice to populate the two token fields in Parser struct
-	parser.getNextToken() //cos on first call p.nextToken is nil, second call yeilds the scanned value
+	parser.stdout = os.Stdout //print to stdout by default
+	parser.getNextToken()     //called twice to populate the two token fields in Parser struct
+	parser.getNextToken()     //cos on first call p.nextToken is nil, second call yeilds the scanned value
 	return parser
 }
 
@@ -27,23 +30,20 @@ func (p *Parser) ParserLoop(writer io.Writer) {
 	for p.currentToken.TokenType != EOF {
 		if p.currentToken.TokenType == LEFT_BRACE {
 			p.ParseObjects()
+		} else if p.currentToken.TokenType == LEFT_PAREN {
+			p.ParseArray()
+		} else {
+			p.ParseValue()
 		}
 		p.getNextToken()
 	}
 
 	if p.currentTokenIs(EOF) {
-		fmt.Fprintln(writer, "Input file is valid")
-		/* fmt.Println("Input file is valid") */
+		fmt.Fprintln(writer, "valid")
 	}
 }
 
 func (p *Parser) ParseObjects() {
-
-	/* 	if p.nextTokenIs(RIGHT_BRACE) {
-		p.match(LEFT_BRACE)
-		p.match(RIGHT_BRACE)
-		return
-	} */
 
 	p.match(LEFT_BRACE)
 	for !p.currentTokenIs(RIGHT_BRACE) {
@@ -53,7 +53,8 @@ func (p *Parser) ParseObjects() {
 			p.ParseValue()
 			if p.nextTokenIs(RIGHT_BRACE) {
 				p.match(COMMA)
-				panic("trailing comma")
+				/* panic("trailing comma") */
+				p.parserError("trailing comma")
 			} else {
 				p.match(COMMA)
 			}
@@ -86,16 +87,22 @@ func (p *Parser) ParseValue() {
 	case NULL:
 		p.match(NULL)
 	default:
-		fmt.Println("default: illegal value")
+		p.parserError("default: illegal value")
 		p.IllegalValue(p.currentToken)
 	}
 
 }
 
 func (p *Parser) IllegalValue(expectedToken Token) {
-	/* msg := fmt.Sprintf("Expected %s found %s", expectedToken, p.currentToken.Lexeme) */
+
 	msg := fmt.Sprintf("Unexpected value %s", expectedToken.Lexeme)
+	fmt.Println(p.stdout, msg)
 	panic(msg)
+}
+
+func (p *Parser) parserError(errMsg string) {
+	fmt.Println(p.stdout, errMsg)
+	os.Exit(1)
 }
 
 func (p *Parser) ParseArray() {
@@ -120,13 +127,14 @@ func (p *Parser) expect(tk string) bool {
 }
 
 func (p *Parser) match(expectedToken string) {
-	fmt.Println(expectedToken, p.currentToken.Lexeme, "next token:", p.nextToken.Lexeme, p.nextToken.TokenType)
+	/* fmt.Println(expectedToken, p.currentToken.Lexeme, "next token:", p.nextToken.Lexeme, p.nextToken.TokenType) */
 	if p.currentToken.TokenType == expectedToken {
 		p.getNextToken()
 		return
 	}
 	msg := fmt.Sprintf("Expected %s got %s", expectedToken, p.currentToken.TokenType)
-	panic(msg)
+	p.parserError(msg)
+	/* panic(msg) */
 }
 
 func (p *Parser) currentTokenIs(tk string) bool {

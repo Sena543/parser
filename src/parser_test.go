@@ -18,15 +18,33 @@ func TestParser(t *testing.T) {
 		return New(bytesData)
 
 	}
-	t.Run("step1: valid.json test", func(t *testing.T) {
-		buffer := bytes.Buffer{}
-		parse := readFile(t, "./tests_files/step1/valid.json")
-		parse.ParserLoop(&buffer)
-		got := buffer.String()
-		want := "Input file is valid\n"
 
-		if got != want {
-			t.Errorf("got %q want %q \n", got, want)
+	t.Run("step1:", func(t *testing.T) {
+		step1 := []struct {
+			path string
+			want string
+		}{
+			{path: "./tests_files/step1/valid.json", want: "valid\n"},
+			{path: "./tests_files/step1/invalid.json", want: "Error: file empty"},
+			/* {path: "./tests_files/step1/invalid.json", want: "Error: file empty"}, */
+		}
+		for _, value := range step1 {
+			t.Run(value.path, func(t *testing.T) {
+
+				buffer := bytes.Buffer{}
+
+				parse := readFile(t, value.path)
+				parse.ParserLoop(&buffer)
+				got := buffer.String()
+				want := value.want
+
+				if got != want {
+					t.Errorf("got %q want %q \n", got, want)
+				}
+				buffer.Reset()
+
+			})
+
 		}
 
 	})
