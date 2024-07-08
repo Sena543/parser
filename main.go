@@ -12,15 +12,15 @@ func main() {
 	readFile()
 }
 
-func checkError(err error, msg string) {
+/* func checkError(err error, msg string) {
 	if err != nil {
 		fmt.Println(fmt.Errorf(msg, err))
 	}
-}
+} */
 
 func readFile() {
 	stdIn, err := os.Stdin.Stat()
-	checkError(err, "Error checking stdin")
+	src.CheckError(os.Stdout, err, "Error checking stdin")
 
 	var fileDataPointer []byte
 	if stdIn.Mode()&os.ModeCharDevice == 0 { //check if data is comming from stdin
@@ -28,7 +28,7 @@ func readFile() {
 	} else {
 		filePath := os.Args[len(os.Args)-1]
 		if _, err := os.Stat(filePath); err != nil { //check if path exists
-			checkError(err, "File path error: ")
+			src.CheckError(os.Stdout, err, "File path error: ")
 		}
 		fileDataPointer, _ = os.ReadFile(filePath)
 	}
