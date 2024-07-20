@@ -39,8 +39,13 @@ func readFile() {
 	}
 
 	byteData := src.BeginScan(fileDataPointer)
-	// byteData.ScanTokens()
-	/* byteData.ScannerLoop() */
+	byteData.ScannerLoop()
 	parserInit := src.New(byteData)
-	parserInit.ParserLoop(os.Stdout)
+	res, err := parserInit.ParserLoop(os.Stdout)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(res)
+
 }
