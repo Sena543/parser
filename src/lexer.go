@@ -122,29 +122,45 @@ func (l *Lexer) booleanToken() []byte {
 	for !l.atEnd() && l.isLetter() && l.peek() != ',' { //potential bug here what happens if l.peek()==}/{ etc
 		l.readChar()
 	}
-	if l.atEnd() {
-		panic("Comma separator or curly brace required after boolen value. found none")
-	}
-
-	/* l.readChar() */
 	return l.input[l.start:l.current]
 	/* return l.input[l.start : l.current-1] */
 }
 
 func (l *Lexer) digitToken() []byte {
 
-	l.start = l.current - 1 //first char not being read so offet left by one
+	if l.input[l.current-2] == '-' {
+		l.start = l.current - 2 //first char not being read so offet left by two to include - character
+	} else {
+		l.start = l.current - 1 //first char not being read so offet left by one
+	}
+
 	for !l.atEnd() && l.isDigit() && l.peek() != ',' {
 		l.readChar()
 	}
-	if l.atEnd() {
-		panic("Comma separator or curly brace required after digits. found none")
+
+	if l.character == '.' { //read the decimal point
+		l.readChar()
 	}
+	for !l.atEnd() && l.isDigit() && l.peek() != ',' { // read rest of  numbers
+		l.readChar()
+	}
+
+	if l.character == 'E' || l.character == 'e' {
+		l.readChar()
+		if l.character == '+' || l.character == '-' {
+			l.readChar()
+		}
+		for !l.atEnd() && l.isDigit() && l.peek() != ',' { // read rest of  numbers
+			l.readChar()
+		}
+	}
+
 	return l.input[l.start:l.current]
 }
 
 func (l *Lexer) isDigit() bool {
-	return l.character >= '0' && l.character <= '9'
+	return (l.character >= '0' && l.character <= '9')
+	/* return (l.character >= '0' && l.character <= '9') || (l.character == '-' && l.peek() >= '0' && l.peek() <= '9') */
 }
 
 func (l *Lexer) stringToken() []byte {
