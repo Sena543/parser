@@ -32,14 +32,12 @@ func readFile() {
 		}
 		fileDataPointer, _ = os.ReadFile(filePath)
 	}
-
 	if len(fileDataPointer) < 1 {
 		fmt.Println("Error: file empty")
 		return
 	}
 
 	byteData := src.BeginScan(fileDataPointer)
-	byteData.ScannerLoop()
 	parserInit := src.New(byteData)
 	res, err := parserInit.ParserLoop(os.Stdout)
 	if err != nil {

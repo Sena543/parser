@@ -101,7 +101,7 @@ func TestParser(t *testing.T) {
 		}
 
 	})
-	/* t.Run("step4: ", func(t *testing.T) {
+	t.Run("step4: ", func(t *testing.T) {
 		step4 := []struct {
 			path    string
 			want    string
@@ -125,5 +125,5 @@ func TestParser(t *testing.T) {
 			})
 		}
 
-	}) */
+	})
 }
