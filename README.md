@@ -20,6 +20,6 @@ If no filename is provided and stdin is empty or not piped, the utility attempts
 Error handling for file reading and command-line argument parsing is minimal and may need extension depending on deployment needs.
 
 ### TODO
-- [ ] Work on test suite.
-- [x] Handling unicode characters.
+- [x] Work on test suite.
+- [ ] Handling unicode characters.
 - [ ] Escaping  characters.
