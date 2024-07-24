@@ -57,16 +57,18 @@ func (l *Lexer) ScanTokens() Token {
 		} else if l.isLetter() { //boolean check to extract true or false value
 			tokenValue := string(l.booleanToken())
 
-			if tokenValue[0] == 't' {
+			if tokenValue == "true" {
+				/* if tokenValue[0] == 't' { */
 				token = Token{TokenType: TRUE, Lexeme: tokenValue}
-			} else if tokenValue[0] == 'f' {
+				/* } else if tokenValue[0] == 'f' { */
+			} else if tokenValue == "false" {
 				token = Token{TokenType: FALSE, Lexeme: tokenValue}
 			} else if tokenValue == "null" { //used string check instead of char cos value might start with and n
 				//must do same for above checks
 				token = Token{TokenType: NULL, Lexeme: "null"}
 			} else {
 
-				fmt.Println("token value:", tokenValue)
+				/* fmt.Println("illegal token :", tokenValue) */
 				token = Token{TokenType: ILLEGAL, Lexeme: tokenValue}
 				/* token = Token{TokenType: NULL, Lexeme: "null"} */
 			}
@@ -112,7 +114,6 @@ func (l *Lexer) removeWhitespaces() {
 }
 
 func (l *Lexer) isLetter() bool {
-	/* return ('a' <= l.character && l.character <= 'z') */
 	return ('a' <= l.character && l.character <= 'z') || ('A' <= l.character && l.character <= 'Z')
 }
 
