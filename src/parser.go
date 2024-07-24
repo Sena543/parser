@@ -128,17 +128,32 @@ func (p *Parser) ParseValue() error {
 }
 
 func (p *Parser) ParseArray() error {
-
 	if err := p.match(LEFT_PAREN); err != nil {
 		return err
 	}
+	fmt.Println(p.currentToken, p.nextToken)
 	for !p.currentTokenIs(RIGHT_PAREN) {
+
 		if err := p.ParseValue(); err != nil {
 			return err
 		}
-		if p.nextTokenIs(COMMA) {
-			if err := p.match(COMMA); err != nil {
-				return err
+
+		if p.currentTokenIs(COMMA) && p.nextTokenIs(RIGHT_PAREN) {
+			p.match(COMMA)
+			p.match(RIGHT_BRACE)
+			return fmt.Errorf("trailing comma")
+		} else {
+
+			if p.currentTokenIs(RIGHT_PAREN) {
+				break
+			}
+
+			if p.currentTokenIs(COMMA) {
+				if err := p.match(COMMA); err != nil {
+					return err
+				}
+			} else {
+				return fmt.Errorf("Expected COMMA, found %v", p.currentToken)
 			}
 		}
 	}
@@ -149,18 +164,8 @@ func (p *Parser) ParseArray() error {
 	return nil
 }
 
-// checks the what we expect the nextToken to be
-// tk string type same as Token.TokenType
-func (p *Parser) expect(tk string) bool {
-	if !p.nextTokenIs(tk) {
-		return false
-	}
-	return true
-}
-
 func (p *Parser) match(expectedToken string) error {
 	/* fmt.Println("expectedToken: ", expectedToken, p.currentToken.Lexeme, "<-->next token:", p.nextToken.Lexeme, p.nextToken.TokenType) */
-	fmt.Println("expectedToken: ", expectedToken, "currentToken: ", p.currentToken, "nextToken: ", p.nextToken)
 	if p.currentToken.TokenType == expectedToken {
 		err := p.getNextToken()
 		if err != nil {
