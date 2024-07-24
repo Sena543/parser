@@ -50,9 +50,9 @@ func (p *Parser) ParserLoop(writer io.Writer) (string, error) {
 				return "invalid", err
 			}
 		} else {
-			if err := p.ParseValue(); err != nil {
-				return "invalid", err
-			}
+			/* if err := p.ParseValue(); err != nil { */
+			return "invalid", fmt.Errorf("json can only be array or object")
+			/* } */
 		}
 		p.getNextToken()
 	}
