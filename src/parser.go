@@ -1,7 +1,6 @@
 package src
 
 import (
-	"errors"
 	"fmt"
 	"io"
 )
@@ -32,7 +31,7 @@ func (p *Parser) getNextToken() error {
 	p.nextToken = &token
 
 	if p.nextToken == nil {
-		return errors.New("Error: nil next token")
+		return fmt.Errorf("Error: nil next token")
 	}
 
 	return nil
@@ -80,7 +79,7 @@ func (p *Parser) ParseObjects() error {
 
 			if p.nextTokenIs(RIGHT_BRACE) {
 				p.match(COMMA)
-				return errors.New("trailing comma")
+				return fmt.Errorf("trailing comma")
 			} else {
 				if err := p.match(COMMA); err != nil {
 					return err
@@ -185,9 +184,9 @@ func (p *Parser) match(expectedToken string) error {
 		}
 		return nil
 	}
+	fmt.Println("expectedToken: ", expectedToken, "currentToken: ", p.currentToken, "nextToken: ", p.nextToken)
 	msg := fmt.Sprintf("Expected %s got %s", expectedToken, p.currentToken.TokenType)
-	/* p.parserError(msg) */
-	return errors.New(msg)
+	return fmt.Errorf(msg)
 }
 
 func (p *Parser) currentTokenIs(tk string) bool {
