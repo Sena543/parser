@@ -65,7 +65,7 @@ func (p *Parser) ParseObjects() error {
 
 	p.match(LEFT_BRACE)
 	for !p.currentTokenIs(RIGHT_BRACE) {
-		if err := p.match(KEY); err != nil {
+		if err := p.match(STRING); err != nil {
 			return err
 		}
 
@@ -98,7 +98,7 @@ func (p *Parser) ParseObjects() error {
 		return err
 	}
 
-	if p.nextTokenIs(KEY) {
+	if p.nextTokenIs(STRING) {
 		if err := p.match(COMMA); err != nil {
 			return err
 		}
@@ -108,10 +108,9 @@ func (p *Parser) ParseObjects() error {
 
 func (p *Parser) ParseValue() error {
 
-	/* fmt.Println("current token:", p.currentToken, "next token: ", *p.nextToken) */
 	switch p.currentToken.TokenType {
-	case STRING_VALUE:
-		return p.match(STRING_VALUE)
+	case STRING:
+		return p.match(STRING)
 	case LEFT_BRACE:
 		return p.ParseObjects()
 	case LEFT_PAREN:
