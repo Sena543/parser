@@ -122,25 +122,9 @@ func (p *Parser) ParseValue() error {
 		return p.match(NUMBER)
 	case NULL:
 		return p.match(NULL)
-	case ILLEGAL:
-		return errors.New("illegal token found")
-	default:
-		p.parserError("default: illegal value")
-		/* p.getNextToken() */
-		/* fmt.Println(p.message, "messagekdfkajd") */
 	}
 
-	return nil
-}
-
-func (p *Parser) parserError(errMsg string) {
-	/* func (p *Parser) parserError(errMsg string, expectedToken string) error { */
-	/* if err := p.match(expectedToken); err != nil {
-		return err
-	} */
-	p.message = errMsg
-	fmt.Println(errMsg, p.currentToken)
-	/* return nil */
+	return fmt.Errorf("Value expected")
 }
 
 func (p *Parser) ParseArray() error {
