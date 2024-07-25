@@ -35,7 +35,6 @@ func TestParser(t *testing.T) {
 
 				parse := readFile(t, value.path)
 				got, _ := parse.ParserLoop(&buffer)
-				/* got := buffer.String() */
 				want := value.want
 
 				if got != want {
@@ -69,10 +68,7 @@ func TestParser(t *testing.T) {
 				if got != want {
 					t.Errorf("got %q want %q \n", got, want)
 				}
-				/* 		if value.message != errMsg {
-					t.Errorf("got %q want %q \n", got, want)
-				}
-				*/buffer.Reset()
+				buffer.Reset()
 			})
 		}
 	})
@@ -90,10 +86,9 @@ func TestParser(t *testing.T) {
 
 				buffer := bytes.Buffer{}
 				parse := readFile(t, value.path)
-				got, el := parse.ParserLoop(&buffer)
+				got, _ := parse.ParserLoop(&buffer)
 				want := value.want
 
-				fmt.Println("got", el)
 				if got != want {
 					t.Errorf("got %q want %q \n", got, want)
 				}
@@ -124,6 +119,9 @@ func TestParser(t *testing.T) {
 				}
 			})
 		}
+	})
+
+	t.Run("step5:", func(t *testing.T) {
 
 	})
 }

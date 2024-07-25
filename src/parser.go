@@ -38,7 +38,6 @@ func (p *Parser) getNextToken() error {
 
 func (p *Parser) ParserLoop(writer io.Writer) (string, error) {
 	/* for !p.currentTokenIs(EOF) { */
-	/* for p.currentToken.TokenType != EOF { */
 	if p.currentToken.TokenType == LEFT_BRACE {
 		if err := p.ParseObjects(); err != nil {
 			return "invalid", err
@@ -49,13 +48,14 @@ func (p *Parser) ParserLoop(writer io.Writer) (string, error) {
 			return "invalid", err
 		}
 	} else {
-		/* if err := p.ParseValue(); err != nil { */
 		return "invalid", fmt.Errorf("json can only be array or object")
-		/* } */
 	}
 	/* p.getNextToken() */
 	/* } */
 
+	if err := p.match(EOF); err != nil {
+		return "invalid", fmt.Errorf("End of file expected")
+	}
 	return "valid", nil
 }
 
@@ -134,7 +134,6 @@ func (p *Parser) ParseArray() error {
 			return fmt.Errorf("trailing comma")
 		} else {
 
-			fmt.Println("current token is: ", p.currentToken)
 			if p.currentTokenIs(RIGHT_PAREN) {
 				break
 			}
