@@ -37,24 +37,24 @@ func (p *Parser) getNextToken() error {
 }
 
 func (p *Parser) ParserLoop(writer io.Writer) (string, error) {
-	for p.currentToken.TokenType != EOF {
-		/* for p.currentToken.TokenType != EOF && p.message == "" { */
-		if p.currentToken.TokenType == LEFT_BRACE {
-			if err := p.ParseObjects(); err != nil {
-				return "invalid", err
-			}
-
-		} else if p.currentToken.TokenType == LEFT_PAREN {
-			if err := p.ParseArray(); err != nil {
-				return "invalid", err
-			}
-		} else {
-			/* if err := p.ParseValue(); err != nil { */
-			return "invalid", fmt.Errorf("json can only be array or object")
-			/* } */
+	/* for !p.currentTokenIs(EOF) { */
+	/* for p.currentToken.TokenType != EOF { */
+	if p.currentToken.TokenType == LEFT_BRACE {
+		if err := p.ParseObjects(); err != nil {
+			return "invalid", err
 		}
-		p.getNextToken()
+
+	} else if p.currentToken.TokenType == LEFT_PAREN {
+		if err := p.ParseArray(); err != nil {
+			return "invalid", err
+		}
+	} else {
+		/* if err := p.ParseValue(); err != nil { */
+		return "invalid", fmt.Errorf("json can only be array or object")
+		/* } */
 	}
+	/* p.getNextToken() */
+	/* } */
 
 	return "valid", nil
 }
@@ -121,7 +121,7 @@ func (p *Parser) ParseArray() error {
 	if err := p.match(LEFT_PAREN); err != nil {
 		return err
 	}
-	fmt.Println(p.currentToken, p.nextToken)
+	/* fmt.Println(p.currentToken, p.nextToken) */
 	for !p.currentTokenIs(RIGHT_PAREN) {
 
 		if err := p.ParseValue(); err != nil {

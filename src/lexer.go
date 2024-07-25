@@ -1,6 +1,10 @@
 package src
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
 
 type Lexer struct {
 	// input          string
@@ -17,7 +21,8 @@ func BeginScan(inputSource []byte) *Lexer {
 func (l *Lexer) ScannerLoop() {
 
 	for l.current < len(l.input) {
-		l.ScanTokens()
+		fmt.Println(l.ScanTokens())
+
 	}
 }
 
@@ -58,26 +63,19 @@ func (l *Lexer) ScanTokens() Token {
 		if l.isDigit() {
 			token = Token{TokenType: NUMBER, Lexeme: string(l.digitToken())}
 		} else if l.isLetter() { //boolean check to extract true or false value
-			tokenValue := string(l.booleanToken())
+			tokenValue := string(l.booleanToken()[:])
 
 			if tokenValue == "true" {
-				/* if tokenValue[0] == 't' { */
 				token = Token{TokenType: TRUE, Lexeme: tokenValue}
-				/* } else if tokenValue[0] == 'f' { */
 			} else if tokenValue == "false" {
 				token = Token{TokenType: FALSE, Lexeme: tokenValue}
-			} else if tokenValue == "null" { //used string check instead of char cos value might start with and n
-				//must do same for above checks
+			} else if tokenValue == "null" {
 				token = Token{TokenType: NULL, Lexeme: "null"}
 			} else {
 
-				/* fmt.Println("illegal token :", tokenValue) */
 				token = Token{TokenType: ILLEGAL, Lexeme: tokenValue}
-				/* token = Token{TokenType: NULL, Lexeme: "null"} */
 			}
-		} /* else {
-			token = Token{TokenType: NULL, Lexeme: "null"}
-		} */
+		}
 	}
 
 	/* fmt.Println("lexer: ", token) */
@@ -127,7 +125,6 @@ func (l *Lexer) booleanToken() []byte {
 		l.readChar()
 	}
 	return l.input[l.start:l.current]
-	/* return l.input[l.start : l.current-1] */
 }
 
 func (l *Lexer) digitToken() []byte {
@@ -167,17 +164,60 @@ func (l *Lexer) isDigit() bool {
 	/* return (l.character >= '0' && l.character <= '9') || (l.character == '-' && l.peek() >= '0' && l.peek() <= '9') */
 }
 
-func (l *Lexer) stringToken() []byte {
+//func (l *Lexer) stringToken() []byte {
 
-	l.start = l.current
-	for !l.atEnd() && l.input[l.current] != '"' {
-		/* for !l.atEnd() && l.peek() != '"' { */
+//	l.start = l.current
+//	for !l.atEnd() && l.input[l.current] != '"' {
+/* for !l.atEnd() && l.peek() != '"' { */
+//		l.readChar()
+//	}
+//	if l.atEnd() {
+//		panic("Unterminated string")
+//	}
+
+//	l.readChar() //read last quote
+//	return l.input[l.start : l.current-1]
+//}
+
+func (l *Lexer) stringToken() []byte {
+	l.start = l.current + 1 // Skip initial quote
+	var sb strings.Builder
+
+	for {
+		if l.atEnd() {
+			panic("Unterminated string")
+		}
+		if l.input[l.current] == '\\' { // Handle escape sequences
+			l.readChar()
+			switch l.input[l.current] {
+			case '"', '\\':
+				sb.WriteByte(l.input[l.current])
+			case 'n':
+				sb.WriteByte('\n')
+			case 'r':
+				sb.WriteByte('\r')
+			case 't':
+				sb.WriteByte('\t')
+			case 'u':
+				// Handle Unicode escape sequences
+				code, err := strconv.ParseUint(string(l.input[l.current+1:l.current+5]), 16, 32)
+				if err != nil {
+					panic(fmt.Sprintf("Invalid Unicode escape sequence: %v", err))
+				}
+				sb.WriteRune(rune(code))
+				l.current += 4 // Move forward 4 characters (uXXXX)
+			default:
+				sb.WriteByte('\\')
+				sb.WriteByte(l.input[l.current])
+			}
+		} else if l.input[l.current] == '"' {
+			break // End of string
+		} else {
+			sb.WriteByte(l.input[l.current])
+		}
 		l.readChar()
 	}
-	if l.atEnd() {
-		panic("Unterminated string")
-	}
 
-	l.readChar() //read last quote
-	return l.input[l.start : l.current-1]
+	l.readChar() // Consume ending quote
+	return []byte(sb.String())
 }
