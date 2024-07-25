@@ -9,7 +9,6 @@ type Parser struct {
 	lexer        *Lexer
 	currentToken Token
 	nextToken    *Token
-	message      string
 	parseErr     error
 	//nextToken is my lookahead
 }
@@ -65,43 +64,34 @@ func (p *Parser) ParseObjects() error {
 	p.match(LEFT_BRACE)
 	for !p.currentTokenIs(RIGHT_BRACE) {
 		if err := p.match(STRING); err != nil {
-			return err
+			return fmt.Errorf("Expected string key but got %s", p.currentToken.Lexeme)
 		}
 
 		if err := p.match(COLON); err != nil {
 			return err
 		}
 
-		if p.nextTokenIs(COMMA) {
-			if err := p.ParseValue(); err != nil {
-				return err
-			}
+		if err := p.ParseValue(); err != nil {
+			return err
+		}
 
-			if p.nextTokenIs(RIGHT_BRACE) {
-				p.match(COMMA)
-				return fmt.Errorf("trailing comma")
-			} else {
-				if err := p.match(COMMA); err != nil {
-					return err
-				}
+		if p.currentTokenIs(COMMA) && p.nextTokenIs(RIGHT_BRACE) {
+			p.match(COMMA)
+			p.match(RIGHT_BRACE)
+			return fmt.Errorf("trailing comma")
+		} else if p.currentTokenIs(COMMA) && p.nextTokenIs(STRING) {
+			if err := p.match(COMMA); err != nil {
+				return err
 			}
 		} else {
-			if err := p.ParseValue(); err != nil {
-				return err
-			}
+			break
 		}
 	}
 
-	/* p.match(RIGHT_BRACE) */
 	if err := p.match(RIGHT_BRACE); err != nil {
 		return err
 	}
 
-	if p.nextTokenIs(STRING) {
-		if err := p.match(COMMA); err != nil {
-			return err
-		}
-	}
 	return nil
 }
 
