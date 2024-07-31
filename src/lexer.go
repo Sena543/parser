@@ -45,18 +45,9 @@ func (l *Lexer) ScanTokens() Token {
 		token = createToken(COMMA, l.character)
 	case ':':
 		token = createToken(COLON, l.character)
-	case '"': //check if is key or value in here
-		/* var tokenType string */
-		item1 := l.stringToken()
-		item := string(item1)
+	case '"':
+		item := string(l.stringToken())
 		token = Token{TokenType: STRING, Lexeme: item}
-
-		/* if !l.atEnd() && l.input[l.current] == ':' {
-			tokenType = KEY
-		} else {
-			tokenType = STRING_VALUE
-		}
-		 token = Token{TokenType: tokenType, Lexeme: item} */
 	case '\000': //end of file
 		token = createToken(EOF, '\000')
 	default:
@@ -65,6 +56,7 @@ func (l *Lexer) ScanTokens() Token {
 		} else if l.isLetter() { //boolean check to extract true or false value
 			tokenValue := string(l.booleanToken()[:])
 
+			fmt.Println("this line ran", tokenValue)
 			if tokenValue == "true" {
 				token = Token{TokenType: TRUE, Lexeme: tokenValue}
 			} else if tokenValue == "false" {
@@ -72,13 +64,11 @@ func (l *Lexer) ScanTokens() Token {
 			} else if tokenValue == "null" {
 				token = Token{TokenType: NULL, Lexeme: "null"}
 			} else {
-
 				token = Token{TokenType: ILLEGAL, Lexeme: tokenValue}
 			}
 		}
 	}
-
-	/* fmt.Println("lexer: ", token) */
+	fmt.Println(token)
 	return token
 }
 
@@ -89,7 +79,6 @@ func createToken(tokenType string, literal byte) Token {
 func (l *Lexer) readChar() {
 
 	if l.atEnd() { //handles end of input
-		/* l.character = 0 */
 		l.character = '\000'
 		return
 	}
@@ -129,12 +118,7 @@ func (l *Lexer) booleanToken() []byte {
 
 func (l *Lexer) digitToken() []byte {
 
-	if l.input[l.current-2] == '-' {
-		l.start = l.current - 2 //first char not being read so offet left by two to include - character
-	} else {
-		l.start = l.current - 1 //first char not being read so offet left by one
-	}
-
+	l.start = l.current - 1 //first char not being read so offet left by one
 	for !l.atEnd() && l.isDigit() && l.peek() != ',' {
 		l.readChar()
 	}
@@ -155,13 +139,12 @@ func (l *Lexer) digitToken() []byte {
 			l.readChar()
 		}
 	}
-
 	return l.input[l.start:l.current]
 }
 
 func (l *Lexer) isDigit() bool {
-	return (l.character >= '0' && l.character <= '9')
-	/* return (l.character >= '0' && l.character <= '9') || (l.character == '-' && l.peek() >= '0' && l.peek() <= '9') */
+	//check if is a negative or positive digit
+	return (l.character >= '0' && l.character <= '9') || (l.character == '-' && l.peek() >= '0' && l.peek() <= '9')
 }
 
 //func (l *Lexer) stringToken() []byte {
