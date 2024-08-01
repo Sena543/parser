@@ -51,12 +51,16 @@ func (l *Lexer) ScanTokens() Token {
 	case '\000': //end of file
 		token = createToken(EOF, '\000')
 	default:
+
+		if l.character == '-' {
+			l.readChar() //skip minus sign as it is handled in digitToken func
+
+		}
 		if l.isDigit() {
 			token = Token{TokenType: NUMBER, Lexeme: string(l.digitToken())}
 		} else if l.isLetter() { //boolean check to extract true or false value
-			tokenValue := string(l.booleanToken()[:])
+			tokenValue := string(l.booleanToken())
 
-			fmt.Println("this line ran", tokenValue)
 			if tokenValue == "true" {
 				token = Token{TokenType: TRUE, Lexeme: tokenValue}
 			} else if tokenValue == "false" {
@@ -68,7 +72,6 @@ func (l *Lexer) ScanTokens() Token {
 			}
 		}
 	}
-	fmt.Println(token)
 	return token
 }
 
@@ -113,23 +116,37 @@ func (l *Lexer) booleanToken() []byte {
 	for !l.atEnd() && l.isLetter() && l.peek() != ',' { //potential bug here what happens if l.peek()==}/{ etc
 		l.readChar()
 	}
+
+	// Ensure we trim any trailing whitespace or newline characters
+	for l.current > l.start && (l.input[l.current-1] == ' ' || l.input[l.current-1] == '\n') {
+		l.current--
+	}
 	return l.input[l.start:l.current]
 }
 
 func (l *Lexer) digitToken() []byte {
 
-	l.start = l.current - 1 //first char not being read so offet left by one
-	for !l.atEnd() && l.isDigit() && l.peek() != ',' {
+	if l.input[l.current-2] == '-' {
+		l.start = l.current - 2 //first char not being read so offet left by one
+	} else {
+		l.start = l.current - 1 //first char not being read so offet left by one
+	}
+
+	for !l.atEnd() && l.isDigit() {
+		if l.input[l.current] == ',' || l.input[l.current] == ']' {
+			break
+		}
+
 		l.readChar()
 	}
 
 	if l.character == '.' { //read the decimal point
 		l.readChar()
-	}
-	for !l.atEnd() && l.isDigit() && l.peek() != ',' { // read rest of  numbers
-		l.readChar()
-	}
+		for !l.atEnd() && l.isDigit() && l.peek() != ',' { // read rest of  numbers
+			l.readChar()
+		}
 
+	}
 	if l.character == 'E' || l.character == 'e' {
 		l.readChar()
 		if l.character == '+' || l.character == '-' {
@@ -139,12 +156,14 @@ func (l *Lexer) digitToken() []byte {
 			l.readChar()
 		}
 	}
+
 	return l.input[l.start:l.current]
 }
 
 func (l *Lexer) isDigit() bool {
+	return l.character >= '0' && l.character <= '9'
 	//check if is a negative or positive digit
-	return (l.character >= '0' && l.character <= '9') || (l.character == '-' && l.peek() >= '0' && l.peek() <= '9')
+	/* return (l.character >= '0' && l.character <= '9') || (l.character == '-' && l.peek() >= '0' && l.peek() <= '9') */
 }
 
 //func (l *Lexer) stringToken() []byte {
@@ -203,4 +222,34 @@ func (l *Lexer) stringToken() []byte {
 
 	l.readChar() // Consume ending quote
 	return []byte(sb.String())
+}
+
+func (l *Lexer) stringToken1() []byte {
+	l.start = l.current + 1 //read pass the initial quote
+	insideQuote := true
+
+	l.readChar()
+	/* for insideQuote && !l.atEnd() { */
+	for insideQuote {
+		if !l.atEnd() {
+			panic("Unterminated string")
+		}
+
+		if l.character == '\\' { // handle escape character
+			switch l.character {
+			case '"', '\\':
+			case 'n':
+			case 'r':
+			case 't':
+
+			}
+
+		} else if l.character == '"' && l.input[l.current-1] != '\\' {
+			insideQuote = false
+		} else {
+		}
+		l.readChar()
+	}
+
+	return []byte("hello")
 }
