@@ -12,12 +12,6 @@ func main() {
 	readFile()
 }
 
-/* func checkError(err error, msg string) {
-	if err != nil {
-		fmt.Println(fmt.Errorf(msg, err))
-	}
-} */
-
 func readFile() {
 	stdIn, err := os.Stdin.Stat()
 	src.CheckError(os.Stdout, err, "Error checking stdin")
@@ -32,8 +26,10 @@ func readFile() {
 		}
 		fileDataPointer, _ = os.ReadFile(filePath)
 	}
+
 	if len(fileDataPointer) < 1 {
 		fmt.Println("Error: file empty")
+		err = fmt.Errorf("Error: file empty")
 		return
 	}
 

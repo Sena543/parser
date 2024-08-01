@@ -26,7 +26,7 @@ func TestParser(t *testing.T) {
 			want string
 		}{
 			{path: "./tests_files/step1/valid.json", want: "valid"},
-			/* {path: "./tests_files/step1/invalid.json", want: "Error: file empty"}, */
+			{path: "./tests_files/step1/invalid.json", want: "invalid"},
 		}
 		for _, value := range step1 {
 			t.Run(value.path, func(t *testing.T) {
