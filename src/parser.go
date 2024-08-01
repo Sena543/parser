@@ -114,16 +114,14 @@ func (p *Parser) ParseValue() error {
 		return p.match(NULL)
 	}
 
-	return fmt.Errorf("Value expected")
+	return fmt.Errorf("Value expected %v", p.currentToken.Lexeme)
 }
 
 func (p *Parser) ParseArray() error {
 	if err := p.match(LEFT_PAREN); err != nil {
 		return err
 	}
-	/* fmt.Println(p.currentToken, p.nextToken) */
 	for !p.currentTokenIs(RIGHT_PAREN) {
-
 		if err := p.ParseValue(); err != nil {
 			return err
 		}
@@ -151,6 +149,7 @@ func (p *Parser) ParseArray() error {
 }
 
 func (p *Parser) match(expectedToken string) error {
+	/* fmt.Println("currentToken: ", p.currentToken, "nextToken: ", p.nextToken) */
 	if p.currentToken.TokenType == expectedToken {
 		err := p.getNextToken()
 		if err != nil {
