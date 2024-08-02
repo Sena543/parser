@@ -148,10 +148,13 @@ func (l *Lexer) digitToken() []byte {
 
 	}
 	if l.character == 'E' || l.character == 'e' {
-		l.readChar()
+		l.readChar() //read E/e
 		if l.character == '+' || l.character == '-' {
 			l.readChar()
 		}
+		/* if l.input[l.current] >= '0' && l.input[l.current] <= '9' {
+			panic("Unexpected end of number")
+		} */
 		for !l.atEnd() && l.isDigit() && l.peek() != ',' { // read rest of  numbers
 			l.readChar()
 		}
@@ -222,34 +225,4 @@ func (l *Lexer) stringToken() []byte {
 
 	l.readChar() // Consume ending quote
 	return []byte(sb.String())
-}
-
-func (l *Lexer) stringToken1() []byte {
-	l.start = l.current + 1 //read pass the initial quote
-	insideQuote := true
-
-	l.readChar()
-	/* for insideQuote && !l.atEnd() { */
-	for insideQuote {
-		if !l.atEnd() {
-			panic("Unterminated string")
-		}
-
-		if l.character == '\\' { // handle escape character
-			switch l.character {
-			case '"', '\\':
-			case 'n':
-			case 'r':
-			case 't':
-
-			}
-
-		} else if l.character == '"' && l.input[l.current-1] != '\\' {
-			insideQuote = false
-		} else {
-		}
-		l.readChar()
-	}
-
-	return []byte("hello")
 }
